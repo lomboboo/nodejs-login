@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server/server.js",
+    "start": "node server/server.js",
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha tests/**/*.test.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lomboboo/test-me.git"
+  },
+  "engines": {
+    "node": "6.2.0"
   },
   "keywords": [],
   "author": "",
