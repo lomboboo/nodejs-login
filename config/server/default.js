@@ -9,8 +9,6 @@ if ( env === 'development' ) {
 } else if ( env === 'test' ) {
 	process.env.PORT = 4000;
 	process.env.MONGODB_URI = 'mongodb://localhost:27017/test-me-TEST';
-} else {
-	process.env.MONGODB_URI = parameters.mongoProductionUrl;
 }
 
 mongoose.connect( process.env.MONGODB_URI, ( err ) => {
