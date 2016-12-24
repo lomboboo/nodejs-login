@@ -1,6 +1,6 @@
 const env = process.env.NODE_ENV || "development";
 const mongoose = require( 'mongoose' );
-const { parameters } = require( './parameters' );
+//const { parameters } = require( './parameters' );
 mongoose.Promise = global.Promise;
 
 if ( env === 'development' ) {
