@@ -81,3 +81,30 @@ describe( '/GET User', () => {
 			} );
 	} );
 } );
+
+describe( '/DELETE User', () => {
+	it( 'should return ok if removed', ( done ) => {
+		chai.request( app )
+			.delete( '/user/me' )
+			.set( 'x-auth', user.tokens[ 0 ].token )
+			.end( ( err, res ) => {
+				User.find( {} )
+					.then( ( docs ) => {
+						expect( docs.length ).to.equal( 1 );
+					} );
+				expect( res.status ).to.equal( 200 );
+				expect( res.body.ok ).to.equal( 1 );
+				done();
+			} );
+	} );
+	it( 'should return 401 if not authenticated', ( done ) => {
+		chai.request( app )
+			.get( '/user/me' )
+			.set( 'x-auth', "dasdadasas23231jh3k12j31h31" )
+			.end( ( err, res ) => {
+				expect( res.status ).to.equal( 401 );
+				done();
+			} );
+	} );
+} );
+

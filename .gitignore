@@ -2,3 +2,4 @@
 node_modules/
 config/server/parameters.js
 npm-debug.log
+coverage/

@@ -11,7 +11,7 @@ userRouter.post( '/', ( req, res, next ) => {
 	user.save()
 		.then( ( newUser ) => user.generateAuthToken() )
 		.then( ( token ) => {
-			res.header( 'x-auth', token ).status( 200 ).send( { _id: user._id, email: user.email} );
+			res.header( 'x-auth', token ).status( 200 ).send( { _id: user._id, email: user.email } );
 		} )
 		.catch( ( err ) => {
 		res.status( 500 ).send( {
@@ -22,6 +22,16 @@ userRouter.post( '/', ( req, res, next ) => {
 
 userRouter.get( '/me', Authenticate, ( req, res ) => {
 	res.status( 200 ).send( req.user );
+} );
+
+userRouter.delete( '/me', Authenticate, ( req, res ) => {
+	User.remove( { _id: req.user._id } )
+		.then( ( user ) => {
+			res.status( 200 ).send( user );
+		} )
+		.catch( ( err ) => {
+			throw err;
+		} );
 } );
 
 module.exports = { userRouter };
