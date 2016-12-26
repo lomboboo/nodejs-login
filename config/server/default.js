@@ -1,6 +1,6 @@
 const env = process.env.NODE_ENV || "development";
 const mongoose = require( 'mongoose' );
-//const { parameters } = require( './parameters' );
+const { parameters } = require( './parameters' );
 mongoose.Promise = global.Promise;
 
 if ( env === 'development' ) {
@@ -9,6 +9,8 @@ if ( env === 'development' ) {
 } else if ( env === 'test' ) {
 	process.env.PORT = 4000;
 	process.env.MONGODB_URI = 'mongodb://localhost:27017/test-me-TEST';
+} else {
+	process.env.MONGODB_URI = process.env.MONGODB_URI || parameters.mongoProductionUrl;
 }
 
 mongoose.connect( process.env.MONGODB_URI, ( err ) => {

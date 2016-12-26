@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
-    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha tests/**/*.test.js"
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha tests/**/*.test.js",
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- ./tests/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -22,13 +23,19 @@
   },
   "homepage": "https://github.com/lomboboo/test-me#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "jsonwebtoken": "^7.2.1",
+    "lodash": "^4.17.3",
     "mongoose": "^4.7.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
-    "mocha": "^3.2.0"
+    "chai-subset": "^1.3.0",
+    "mocha": "^3.2.0",
+    "morgan": "^1.7.0",
+    "supertest": "^2.0.1"
   }
 }
