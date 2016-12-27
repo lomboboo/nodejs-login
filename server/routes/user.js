@@ -1,6 +1,7 @@
 const express = require( 'express' );
 const userRouter = express.Router();
 const _ = require( "lodash" );
+const bcrypt = require( "bcryptjs" );
 
 const { User } = require( '../models/user' );
 const { Authenticate } = require( '../middleware/authenticate' );
@@ -18,6 +19,20 @@ userRouter.post( '/', ( req, res, next ) => {
 			message: err
 		} );
 	} );
+} );
+
+userRouter.post( '/login', ( req, res ) => {
+	var email = req.body.email;
+	var password = req.body.password;
+	User.login( email, password )
+		.then( ( user ) => {
+			res.header( 'x-auth', user.tokens[ 0 ].token ).status( 200 ).send( user );
+		} )
+		.catch( ( err ) => {
+			res.status( 400 ).send( {
+				message: "Bad credentials."
+			} );
+		} );
 } );
 
 userRouter.get( '/me', Authenticate, ( req, res ) => {

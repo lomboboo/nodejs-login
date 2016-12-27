@@ -108,3 +108,32 @@ describe( '/DELETE User', () => {
 	} );
 } );
 
+describe( '/POST User login', () => {
+	it( 'should return user and set Token', ( done ) => {
+		chai.request( app )
+			.post( '/user/login' )
+			.send( {
+				email: user.email,
+				password: user.password
+			} )
+			.end( ( err, res ) => {
+				expect( res.status ).to.equal( 200 );
+				expect( res.header[ 'x-auth' ] ).to.equal( user.tokens[ 0 ].token );
+				done();
+			} );
+	} );
+	it( 'should return 400 if bad credentials', ( done ) => {
+		chai.request( app )
+			.post( '/user/login' )
+			.send( {
+				email: "example@mail.ru",
+				password: "123"
+			} )
+			.end( ( err, res ) => {
+				expect( res.status ).to.equal( 400 );
+				expect( res.body.message ).to.equal( "Bad credentials." );
+				done();
+			} );
+	} );
+} );
+
