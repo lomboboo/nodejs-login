@@ -1,0 +1,21 @@
+<header>
+  <div class="container">
+    <md-toolbar>
+      <a md-raised-button
+         [routerLink]="['/']"
+         class="home">
+        Home
+      </a>
+      <a md-raised-button
+         (click)="showTest()"
+         class="login">
+        {{ loginBtn }}
+      </a>
+      <a md-raised-button
+         [routerLink]="['/register']"
+         class="register">
+        {{ registerBtn }}
+      </a>
+    </md-toolbar>
+  </div>
+</header>
