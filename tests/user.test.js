@@ -15,7 +15,7 @@ beforeEach( populateUsers );
 describe( "/POST User", () => {
 	var userTwo = {
 		"email": "usertwo@mail.ru",
-		"firstName": "TestTwo",
+		"name": "TestTwo TesterTwo",
 		"lastName": "TesterTwo",
 		"password": "ABC123"
 	};
@@ -41,8 +41,7 @@ describe( "/POST User", () => {
 	it( "Should not save User with invalid data", ( done ) => {
 		var userBad = {
 			"email": "",
-			"firstName": "TestTwo",
-			"lastName": "TesterTwo"
+			"name": "TestTwo TesterTwo"
 		};
 		chai.request( app )
 			.post( '/user' )
@@ -67,8 +66,7 @@ describe( '/GET User', () => {
 			.end( ( err, res ) => {
 				expect( res.body._id ).to.equal( user._id.toHexString() );
 				expect( res.body.email ).to.equal( user.email );
-				expect( res.body.firstName ).to.equal( user.firstName );
-				expect( res.body.lastName ).to.equal( user.lastName );
+				expect( res.body.name ).to.equal( user.name );
 				done();
 			} );
 	} );

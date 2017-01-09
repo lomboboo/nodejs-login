@@ -15,17 +15,11 @@ const UserSchema = new Schema(
 			unique: [ true, "This email is already in use" ],
 			match: [ /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, "Email is not valid" ]
 		},
-		firstName: {
+		name: {
 			type: String,
 			required: [ true, "This field is required" ],
-			minlength: [ 1, "First name can't have 1 symbol" ],
-			maxlength: [ 20, "First name is too big" ]
-		},
-		lastName: {
-			type: String,
-			required: [ true, "This field is required" ],
-			minlength: [ 3, "Last name can't have 1 symbol" ],
-			maxlength: [ 30, "Last name is too big" ]
+			minlength: [ 3, "Name can't be less then 3 symbols" ],
+			maxlength: [ 40, "Name is too big" ]
 		},
 		password: {
 			type: String,
@@ -77,6 +71,22 @@ UserSchema.statics.findByToken = function( token ) {
 	} );
 };
 
+UserSchema.statics.findByEmailToken = function( token ) {
+	var User = this;
+	var decoded;
+
+	try {
+		decoded = jwt.verify( token, process.env.JWT_SECRET || parameters.secret );
+	} catch ( err ) {
+		return Promise.reject(err);
+	}
+	return User.findOne( {
+		_id: decoded._id,
+		"tokens.token": token,
+		"tokens.access": 'email'
+	} );
+};
+
 UserSchema.statics.login = function( email, password ) {
 	var User = this;
 	return User.findOne( { email } )
@@ -95,13 +105,23 @@ UserSchema.statics.login = function( email, password ) {
 
 UserSchema.methods.toJSON = function() {
 	var user = this;
-	return _.pick( user, [ "_id", "firstName", "lastName", "email" ] );
+	return _.pick( user, [ "_id", "name", "email" ] );
 };
 
 UserSchema.methods.generateAuthToken = function() {
 	var user = this;
 	var access = 'auth';
 	var token = jwt.sign( { _id: user._id.toHexString(), access }, process.env.JWT_SECRET || parameters.secret );
+	user.tokens.push( { access, token } );
+	return user.save().then( () => ( { token, user } ) );
+};
+
+UserSchema.methods.generateEmailToken = function() {
+	var user = this;
+	var access = 'email';
+	var token = jwt.sign( { _id: user._id.toHexString(), access }, process.env.JWT_SECRET || parameters.secret, {
+		expiresIn: '1m'
+	} );
 	user.tokens.push( { access, token } );
 	return user.save().then( () => token );
 };

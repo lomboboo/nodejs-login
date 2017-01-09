@@ -2,6 +2,27 @@ const express = require( 'express' );
 const userRouter = express.Router();
 const _ = require( "lodash" );
 const bcrypt = require( "bcryptjs" );
+const app = express();
+const mailer = require( 'express-mailer' );
+const { parameters } = require( '../../config/server/parameters' );
+
+app.set( 'views', `${__dirname}/../mailerViews` );
+app.set( 'view engine', 'jade' );
+/***********************************************/
+/* MAILER */
+/***********************************************/
+
+mailer.extend( app, {
+	from: 'rejestracja@testme.pl',
+	host: 'mail.geekbrain.pl', // hostname
+	secureConnection: true, // use SSL
+	port: 465, // port for secure SMTP
+	transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
+	auth: {
+		user: parameters.mailerUsername,
+		pass: parameters.mailerPassword
+	}
+} );
 
 const { User } = require( '../models/user' );
 const { Authenticate } = require( '../middleware/authenticate' );
@@ -10,14 +31,46 @@ userRouter.post( '/', ( req, res, next ) => {
 	var user = new User( _.pick( req.body, [ "email", "firstName", "lastName", "password" ] ) );
 
 	user.save()
-		.then( ( newUser ) => user.generateAuthToken() )
+		.then( ( newUser ) => newUser.generateEmailToken() )
 		.then( ( token ) => {
-			res.header( 'x-auth', token ).status( 200 ).send( { _id: user._id, email: user.email } );
+			app.mailer.send(
+				{
+					template: 'email',
+					from: "Testme <testme@testme.pl>"
+				},
+				{
+					to: user.email,
+					subject: 'Potwierdź rejestracje',
+					emailToken: token
+				},
+				( err ) => {
+					if ( err ) {
+						console.log( err );
+						res.send( 'There was an error sending the email' );
+						return;
+					}
+					res.send( 'Email Sent' );
+				} );
 		} )
 		.catch( ( err ) => {
 		res.status( 500 ).send( {
 			message: err
 		} );
+	} );
+} );
+
+userRouter.get( '/confirm', ( req, res, next ) => {
+	var emailToken = req.query.emailToken;
+
+	User.findByEmailToken( emailToken )
+		.then( ( user ) => user.generateAuthToken() )
+		.then( ( result ) => {
+			res.header( 'x-auth', result.token ).status( 200 ).send( { _id: result.user._id, email: result.user.email } );
+		} )
+		.catch( ( err ) => {
+			res.status( 500 ).send( {
+				message: err
+			} );
 	} );
 } );
 

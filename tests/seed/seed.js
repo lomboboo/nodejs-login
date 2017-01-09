@@ -8,8 +8,7 @@ const userIDOne = new ObjectID();
 const user = {
 	_id: userIDOne,
 	email: "test@mail.ru",
-	firstName: "Test",
-	lastName: "Tester",
+	name: "Test Tester",
 	password: "ABC123",
 	tokens: [
 		{

@@ -3,16 +3,22 @@
     <md-toolbar>
       <a md-raised-button
          [routerLink]="['/']"
+         [routerLinkActive]="['active']"
+         [routerLinkActiveOptions]="{exact: true}"
          class="home">
         Home
       </a>
       <a md-raised-button
          (click)="showTest()"
+         [routerLinkActive]="['active']"
+         [routerLinkActiveOptions]="{exact: true}"
          class="login">
         {{ loginBtn }}
       </a>
       <a md-raised-button
          [routerLink]="['/register']"
+         [routerLinkActive]="['active']"
+         [routerLinkActiveOptions]="{exact: true}"
          class="register">
         {{ registerBtn }}
       </a>

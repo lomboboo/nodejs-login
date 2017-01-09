@@ -1,7 +1,7 @@
 <form
-  id="registerUserForm"
-  name="registerUserForm"
+  #form="ngForm"
   autocomplete="off"
+  novalidate
 >
   <md-input-container class="form-input">
     <input
@@ -9,6 +9,9 @@
       id="email"
       name="email"
       placeholder="email"
+      [(ngModel)]="model.email"
     >
   </md-input-container>
 </form>
+
+{{ form.value | json }}
