@@ -4,6 +4,7 @@ import { MaterialModule } from '@angular/material';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 import { AppComponent }  from './app.component';
 import {PanelComponent} from "./panel/panel.component";
@@ -21,6 +22,12 @@ import {RegisterComponent} from "./register/register.component";
     FormsModule
   ],
   declarations: [ AppComponent, PanelComponent, RegisterComponent ],
-  bootstrap:    [ AppComponent ]
+  bootstrap:    [ AppComponent ],
+  providers: [
+    {
+      provide: LocationStrategy,
+      useClass: HashLocationStrategy
+    }
+  ]
 })
 export class AppModule { }

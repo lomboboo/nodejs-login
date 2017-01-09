@@ -1,6 +1,6 @@
 export class RegisterModel {
   constructor(
-    public email: string
+    public email: string = ''
   ){
 
   }

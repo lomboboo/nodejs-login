@@ -61,6 +61,9 @@ app.get( '/email', ( req, res, next ) => {
 		res.send( 'Email Sent' );
 	} );
 } );
+/*app.all( '*', ( req, res ) => {
+	res.redirect( "/" );
+} );*/
 
 /***********************************************/
                 /* SERVER */
