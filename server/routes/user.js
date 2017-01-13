@@ -2,9 +2,15 @@ const express = require( 'express' );
 const userRouter = express.Router();
 const _ = require( "lodash" );
 const bcrypt = require( "bcryptjs" );
+const passport = require( 'passport' );
+const FacebookStrategy = require( 'passport-facebook' ).Strategy;
+const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const app = express();
 const mailer = require( 'express-mailer' );
+
 const { parameters } = require( '../../config/server/parameters' );
+const { User } = require( '../models/user' );
+const { Authenticate } = require( '../middleware/authenticate' );
 
 app.set( 'views', `${__dirname}/../mailerViews` );
 app.set( 'view engine', 'jade' );
@@ -24,11 +30,24 @@ mailer.extend( app, {
 	}
 } );
 
-const { User } = require( '../models/user' );
-const { Authenticate } = require( '../middleware/authenticate' );
+/***********************************************/
+                /* FAcebook Auth */
+/***********************************************/
+/*passport.use( new FacebookStrategy( {
+		clientID: parameters.facebookId,
+		clientSecret: parameters.facebookSecret,
+		callbackURL: "http://localhost:4001/user/auth/facebook/callback"
+	}, ( accessToken, refreshToken, profile, cb ) => {
+		console.log( profile );
+		/!*User.findOrCreate( { facebookId: profile.id }, ( err, user ) => {
+
+			/!*return cb( err, user );*!/
+		} );*!/
+	}
+) );*/
 
 userRouter.post( '/', ( req, res, next ) => {
-	var user = new User( _.pick( req.body, [ "email", "firstName", "lastName", "password" ] ) );
+	var user = new User( _.pick( req.body, [ "email", "name", "password" ] ) );
 
 	user.save()
 		.then( ( newUser ) => newUser.generateEmailToken() )
@@ -88,7 +107,7 @@ userRouter.post( '/login', ( req, res ) => {
 		} );
 } );
 
-userRouter.get( '/me', Authenticate, ( req, res ) => {
+userRouter.get( '/me/:token?', Authenticate, ( req, res ) => {
 	res.status( 200 ).send( req.user );
 } );
 
@@ -100,6 +119,31 @@ userRouter.delete( '/me', Authenticate, ( req, res ) => {
 		.catch( ( err ) => {
 			throw err;
 		} );
+} );
+
+/*userRouter.get( '/auth/facebook', passport.authenticate( 'facebook', {
+	scope: [ 'email', 'name' ],
+	authType: 'rerequest'
+} ) );
+
+userRouter.get( '/auth/facebook/callback', passport.authenticate( 'facebook',
+	{
+		successRedirect: '#/',
+		failureRedirect: '#/user/login'
+	} ) );*/
+
+userRouter.get( '/auth/google', passport.authenticate( 'google',
+	{
+		scope: [ 'email', 'profile' ]
+	}
+) );
+
+userRouter.get( '/auth/google/callback', passport.authenticate( 'google',
+	{
+		failureRedirect: '/user/login',
+		session: false
+	} ), ( req, res ) => {
+	res.redirect( `/user/me/${req.user.tokens[ 0 ].token}` );
 } );
 
 module.exports = { userRouter };

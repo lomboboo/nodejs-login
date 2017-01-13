@@ -1,11 +1,52 @@
 const express = require( 'express' );
+const { parameters } = require( '../config/server/parameters' );
+const passport = require( 'passport' );
+const FacebookStrategy = require( 'passport-facebook' ).Strategy;
+const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+
+const { User } = require( './models/user' );
+/***********************************************/
+/* Google Auth */
+/***********************************************/
+passport.use( new GoogleStrategy( {
+		clientID: parameters.googleId,
+		clientSecret: parameters.googleSecret,
+		callbackURL: "http://localhost:4001/user/auth/google/callback",
+		passReqToCallback: true
+	}, ( request, accessToken, refreshToken, profile, done ) => {
+		User.findByPassportToken( accessToken, "google" )
+			.then( ( user ) => {
+				if ( user ) {
+					console.log( "A" );
+					done( null, user );
+				}
+				const newUser = new User(
+					{
+						name: profile.displayName,
+						email: profile.emails[ 0 ].value,
+						password: User.generateRandomPassword()
+					}
+				);
+				newUser.save()
+					.then( ( usr ) => usr.generateAuthToken() )
+					//.then( ( res ) => res.user.savePassportToken( accessToken, "google" ) )
+					.then( ( resul ) => {
+						console.log( "B" );
+						done( null, resul.user );
+					}, ( err ) => console.log( "ERR", err ) );
+			} )
+			.catch( ( err ) => {
+				console.log( "CATCH", err );
+			} );
+	}
+) );
+
 const app = express();
 const path = require( 'path' );
 const bodyParser = require( 'body-parser' );
 const mailer = require( 'express-mailer' );
-
 const { config } = require( '../config/server/default' );
-const { parameters } = require( '../config/server/parameters' );
+
 const publicPath = path.join( __dirname, '../frontend' );
 const { userRouter } = require( './routes/user' );
 /***********************************************/
@@ -18,6 +59,7 @@ if ( process.env.NODE_ENV === 'development' ) {
 }
 app.use( bodyParser.json() );
 app.use( express.static( publicPath ) );
+app.use( passport.initialize() );
 
 app.set( 'views', `${__dirname}/mailerViews` );
 app.set( 'view engine', 'jade' );
@@ -61,9 +103,6 @@ app.get( '/email', ( req, res, next ) => {
 		res.send( 'Email Sent' );
 	} );
 } );
-/*app.all( '*', ( req, res ) => {
-	res.redirect( "/" );
-} );*/
 
 /***********************************************/
                 /* SERVER */

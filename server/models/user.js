@@ -55,6 +55,26 @@ const UserSchema = new Schema(
 	}
 );
 
+UserSchema.statics.generateRandomPassword = function() {
+	var text = "R";
+	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	for ( let i = 0; i < 10; i++ ) {
+		text += possible.charAt( Math.floor( Math.random() * possible.length ) );
+		text += 1;
+	}
+
+	return text;
+};
+
+UserSchema.statics.findByPassportToken = function( accessToken, tokenAccess ) {
+	const User = this;
+	return User.findOne( {
+		"tokens.token": accessToken,
+		"tokens.access": tokenAccess
+	} );
+};
+
 UserSchema.statics.findByToken = function( token ) {
 	var User = this;
 	var decoded;
@@ -78,7 +98,7 @@ UserSchema.statics.findByEmailToken = function( token ) {
 	try {
 		decoded = jwt.verify( token, process.env.JWT_SECRET || parameters.secret );
 	} catch ( err ) {
-		return Promise.reject(err);
+		return Promise.reject( err );
 	}
 	return User.findOne( {
 		_id: decoded._id,
@@ -106,6 +126,14 @@ UserSchema.statics.login = function( email, password ) {
 UserSchema.methods.toJSON = function() {
 	var user = this;
 	return _.pick( user, [ "_id", "name", "email" ] );
+};
+
+UserSchema.methods.savePassportToken = function( accessToken, tokenAccess ) {
+	var user = this;
+	var access = tokenAccess;
+	var token = accessToken;
+	user.tokens.push( { access, token } );
+	return user.save().then( () => ( { token, user } ) );
 };
 
 UserSchema.methods.generateAuthToken = function() {

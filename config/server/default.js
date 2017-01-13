@@ -4,10 +4,10 @@ const { parameters } = require( './parameters' );
 mongoose.Promise = global.Promise;
 
 if ( env === 'development' ) {
-	process.env.PORT = 4000;
+	process.env.PORT = 4001;
 	process.env.MONGODB_URI = 'mongodb://localhost:27017/test-me';
 } else if ( env === 'test' ) {
-	process.env.PORT = 4000;
+	process.env.PORT = 4001;
 	process.env.MONGODB_URI = 'mongodb://localhost:27017/test-me-TEST';
 } else {
 	process.env.MONGODB_URI = process.env.MONGODB_URI || parameters.mongoProductionUrl;
